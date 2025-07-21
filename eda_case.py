@@ -19,9 +19,9 @@ print(f"📊 {len(df):,} clientes | {df.shape[1]} colunas")
 # Padronizar nomes das colunas
 df.columns = df.columns.str.lower().str.replace(' ', '_')
 
-# Lista de produtos
-produtos = ['cartao_credito', 'consignado', 'crediario', 'investimento', 
-           'rotativo_cartao_credito', 'lis', 'posse_salario']
+# Lista de produtos (nomes conforme planilha Excel)
+produtos = ['cartão de crédito', 'consignado', 'crediário', 'investimento', 
+           'rotativo cartão de crédito', 'lis', 'posse_salario']
 
 # Tratar dados de produtos (blank = 0, preenchido = 1)
 for produto in produtos:
