@@ -16,12 +16,41 @@ df = pd.read_excel('dados_clientes.xlsx')
 print("✅ DADOS CARREGADOS")
 print(f"📊 {len(df):,} clientes | {df.shape[1]} colunas")
 
+# DIAGNÓSTICO: Ver nomes exatos das colunas
+print("\n🔍 COLUNAS NA PLANILHA:")
+for i, col in enumerate(df.columns):
+    print(f"  {i+1:2d}. '{col}'")
+
 # Padronizar nomes das colunas
 df.columns = df.columns.str.lower().str.replace(' ', '_')
 
-# Lista de produtos (nomes conforme planilha Excel)
-produtos = ['cartão de crédito', 'consignado', 'crediário', 'investimento', 
-           'rotativo cartão de crédito', 'lis', 'posse_salario']
+print("\n🔧 COLUNAS APÓS PADRONIZAÇÃO:")
+for i, col in enumerate(df.columns):
+    print(f"  {i+1:2d}. '{col}'")
+
+# Lista de produtos - AJUSTAR BASEADO NA SUA PLANILHA
+# Você precisa verificar os nomes exatos acima e ajustar aqui
+produtos = ['cartao_de_credito', 'consignado', 'crediario', 'investimento', 
+           'rotativo_cartao_de_credito', 'lis', 'posse_salario']
+
+# Verificar quais produtos existem
+print("\n✅ PRODUTOS ENCONTRADOS:")
+produtos_existentes = []
+for produto in produtos:
+    if produto in df.columns:
+        produtos_existentes.append(produto)
+        print(f"  ✅ {produto}")
+    else:
+        print(f"  ❌ {produto} - NÃO ENCONTRADO")
+
+# Usar apenas produtos que existem
+produtos = produtos_existentes
+
+if len(produtos) == 0:
+    print("⚠️  ERRO: Nenhum produto encontrado. Verifique os nomes das colunas!")
+    print("🔍 Sugestão: Copie os nomes exatos das colunas mostrados acima")
+else:
+    print(f"\n📋 CONTINUANDO COM {len(produtos)} PRODUTOS")
 
 # Tratar dados de produtos (blank = 0, preenchido = 1)
 for produto in produtos:
