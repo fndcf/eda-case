@@ -169,9 +169,41 @@ print("\n" + "="*50)
 print("ATIVIDADE 2 - SEGMENTAÇÃO")
 print("="*50)
 
-# Segmentação RFV simples
-df['R_score'] = pd.cut(df['de_relacionamento'], bins=[0, 0.2, 0.4, 0.6, 0.8, 1.0], labels=[1,2,3,4,5])
-df['F_score'] = pd.cut(df['num_produtos'], bins=[0, 0.2, 0.4, 0.6, 0.8, 1.0], labels=[1,2,3,4,5], duplicates='drop')
+# Segmentação RFV simples - bins fixos
+print("🔧 Verificando distribuição dos dados...")
+print(f"Score relacionamento: min={df['de_relacionamento'].min():.3f}, max={df['de_relacionamento'].max():.3f}")
+print(f"Número produtos: min={df['num_produtos'].min()}, max={df['num_produtos'].max()}")
+
+# R_score baseado no score de relacionamento (0-1)
+df['R_score'] = pd.cut(df['de_relacionamento'], 
+                      bins=[0, 0.2, 0.4, 0.6, 0.8, 1.0], 
+                      labels=[1, 2, 3, 4, 5], 
+                      include_lowest=True)
+
+# F_score baseado no número de produtos (bins fixos inteiros)
+max_produtos = df['num_produtos'].max()
+print(f"Máximo de produtos por cliente: {max_produtos}")
+
+if max_produtos <= 2:
+    # Se até 2 produtos
+    df['F_score'] = pd.cut(df['num_produtos'], 
+                          bins=[-0.1, 0.5, 1.5, max_produtos + 0.1], 
+                          labels=[1, 2, 3], 
+                          include_lowest=True)
+elif max_produtos <= 4:
+    # Se até 4 produtos  
+    df['F_score'] = pd.cut(df['num_produtos'], 
+                          bins=[-0.1, 0.5, 1.5, 2.5, max_produtos + 0.1], 
+                          labels=[1, 2, 3, 4], 
+                          include_lowest=True)
+else:
+    # Se mais de 4 produtos
+    df['F_score'] = pd.cut(df['num_produtos'], 
+                          bins=[-0.1, 0.5, 1.5, 3.5, max_produtos + 0.1], 
+                          labels=[1, 2, 3, 4], 
+                          include_lowest=True)
+
+print("✅ Scores R e F criados!")
 
 # Score RFV combinado - com tratamento de NaN
 print("🔧 Calculando RFV score...")
