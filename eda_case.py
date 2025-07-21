@@ -6,12 +6,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+print("📦 Importações realizadas com sucesso!")
+
 # ====================================================================
 # CARREGAMENTO DOS DADOS
 # ====================================================================
 
 # Carregar dados do Excel
-df = pd.read_excel('dados_clientes.xlsx')
+df = pd.read_excel('Case_entrevista.xlsx')
 
 print("✅ DADOS CARREGADOS")
 print(f"📊 {len(df):,} clientes | {df.shape[1]} colunas")
@@ -155,8 +157,8 @@ print("ATIVIDADE 2 - SEGMENTAÇÃO")
 print("="*50)
 
 # Segmentação RFV simples
-df['R_score'] = pd.cut(df['de_relacionamento'], q=5, labels=[1,2,3,4,5])
-df['F_score'] = pd.cut(df['num_produtos'], q=5, labels=[1,2,3,4,5], duplicates='drop')
+df['R_score'] = pd.qcut(df['de relacionamento'], q=5, labels=[1,2,3,4,5])
+df['F_score'] = pd.qcut(df['num_produtos'], q=5, labels=[1,2,3,4,5], duplicates='drop')
 
 # Score RFV combinado
 df['RFV_score'] = df['R_score'].astype(int) + df['F_score'].astype(int)
