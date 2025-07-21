@@ -92,12 +92,37 @@ print("\n" + "="*50)
 print("ATIVIDADE 1 - ANÁLISE EXPLORATÓRIA")
 print("="*50)
 
-# 1.1 Score de relacionamento
-print("📈 SCORE DE RELACIONAMENTO:")
-print(f"   Média: {df['relacionamento'].mean():.3f}")
-print(f"   Mediana: {df['relacionamento'].median():.3f}")
-print(f"   Q1 (25%): {df['relacionamento'].quantile(0.25):.3f}")
-print(f"   Q3 (75%): {df['relacionamento'].quantile(0.75):.3f}")
+# 1.1 Score de relacionamento - AJUSTAR NOME DA COLUNA
+# Verificar qual é o nome exato da coluna do score
+score_column = None
+possibilidades_score = [
+    'de relacionamento',
+    'relacionamento', 
+    'score de relacionamento',
+    'de_relacionamento',
+    'score_relacionamento'
+]
+
+print("🔍 PROCURANDO COLUNA DO SCORE:")
+for possibilidade in possibilidades_score:
+    if possibilidade in df.columns:
+        score_column = possibilidade
+        print(f"  ✅ Score encontrado como: '{possibilidade}'")
+        break
+
+if score_column is None:
+    print("  ❌ Coluna de score não encontrada!")
+    print("  📋 Colunas disponíveis que podem ser o score:")
+    for col in df.columns:
+        if 'relacionamento' in col.lower() or 'score' in col.lower():
+            print(f"      - '{col}'")
+    print("  🔧 Ajuste manualmente a variável 'score_column'")
+else:
+    print("📈 SCORE DE RELACIONAMENTO:")
+    print(f"   Média: {df[score_column].mean():.3f}")
+    print(f"   Mediana: {df[score_column].median():.3f}")
+    print(f"   Q1 (25%): {df[score_column].quantile(0.25):.3f}")
+    print(f"   Q3 (75%): {df[score_column].quantile(0.75):.3f}")
 
 # 1.2 Penetração de produtos
 print(f"\n🏦 PENETRAÇÃO DE PRODUTOS:")
@@ -115,19 +140,25 @@ print(f"   Máximo: {df['num_produtos'].max()}")
 
 # 1.4 Correlação produtos x relacionamento
 print(f"\n🔗 CORRELAÇÃO COM RELACIONAMENTO:")
-for produto in produtos:
-    if produto in df.columns:
-        corr = df[produto].corr(df['relacionamento'])
-        print(f"   {produto:25}: {corr:6.3f}")
+if score_column:
+    for produto in produtos:
+        if produto in df.columns:
+            corr = df[produto].corr(df[score_column])
+            print(f"   {produto:25}: {corr:6.3f}")
+else:
+    print("   ⚠️ Coluna de score não encontrada - pulando correlações")
 
 # Visualização básica
 fig, axes = plt.subplots(2, 2, figsize=(12, 8))
 fig.suptitle('ANÁLISE EXPLORATÓRIA', fontsize=14)
 
 # Distribuição do score
-axes[0, 0].hist(df['relacionamento'], bins=30, alpha=0.7)
-axes[0, 0].set_title('Distribuição Score Relacionamento')
-axes[0, 0].axvline(df['relacionamento'].mean(), color='red', linestyle='--')
+if score_column:
+    axes[0, 0].hist(df[score_column], bins=30, alpha=0.7)
+    axes[0, 0].set_title('Distribuição Score Relacionamento')
+    axes[0, 0].axvline(df[score_column].mean(), color='red', linestyle='--')
+else:
+    axes[0, 0].text(0.5, 0.5, 'Score não encontrado', ha='center', va='center', transform=axes[0, 0].transAxes)
 
 # Penetração produtos
 pd.Series(penetracao).plot(kind='bar', ax=axes[0, 1])
@@ -139,9 +170,13 @@ df['num_produtos'].value_counts().sort_index().plot(kind='bar', ax=axes[1, 0])
 axes[1, 0].set_title('Distribuição Produtos/Cliente')
 
 # Score por classe
-if 'clas_modelo' in df.columns:
-    df.boxplot(column='relacionamento', by='clas_modelo', ax=axes[1, 1])
+if 'clas_modelo' in df.columns and score_column:
+    df.boxplot(column=score_column, by='clas_modelo', ax=axes[1, 1])
     axes[1, 1].set_title('Score por Classe')
+elif score_column:
+    axes[1, 1].text(0.5, 0.5, 'CLAS_MODELO não encontrado', ha='center', va='center', transform=axes[1, 1].transAxes)
+else:
+    axes[1, 1].text(0.5, 0.5, 'Score não encontrado', ha='center', va='center', transform=axes[1, 1].transAxes)
 
 plt.tight_layout()
 plt.show()
