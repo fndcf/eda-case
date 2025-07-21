@@ -28,29 +28,49 @@ print("\n🔧 COLUNAS APÓS PADRONIZAÇÃO:")
 for i, col in enumerate(df.columns):
     print(f"  {i+1:2d}. '{col}'")
 
-# Lista de produtos - AJUSTAR BASEADO NA SUA PLANILHA
-# Você precisa verificar os nomes exatos acima e ajustar aqui
-produtos = ['cartao_de_credito', 'consignado', 'crediario', 'investimento', 
-           'rotativo_cartao_de_credito', 'lis', 'posse_salario']
+# Lista de produtos bancários APENAS (baseado na sua descrição original)
+# Estes são os produtos que o cliente pode ter (com valores 1 = tem, blank/0 = não tem)
+produtos_bancarios = [
+    'cartão de crédito',      # ou como estiver na planilha
+    'consignado', 
+    'crediário',
+    'investimento',
+    'rotativo cartão de crédito',  # ou como estiver na planilha  
+    'lis',
+    'posse_salario'           # conta salário
+]
 
-# Verificar quais produtos existem
-print("\n✅ PRODUTOS ENCONTRADOS:")
-produtos_existentes = []
-for produto in produtos:
-    if produto in df.columns:
-        produtos_existentes.append(produto)
-        print(f"  ✅ {produto}")
-    else:
-        print(f"  ❌ {produto} - NÃO ENCONTRADO")
+print("\n🏦 PROCURANDO APENAS PRODUTOS BANCÁRIOS:")
+produtos = []
+for produto in produtos_bancarios:
+    # Verificar várias possibilidades de nome
+    possibilidades = [
+        produto,
+        produto.replace(' ', '_'),
+        produto.replace(' ', ''),
+        produto.lower(),
+        produto.lower().replace(' ', '_')
+    ]
+    
+    encontrado = False
+    for possibilidade in possibilidades:
+        if possibilidade in df.columns:
+            produtos.append(possibilidade)
+            print(f"  ✅ {produto} → encontrado como '{possibilidade}'")
+            encontrado = True
+            break
+    
+    if not encontrado:
+        print(f"  ❌ {produto} → não encontrado")
 
-# Usar apenas produtos que existem
-produtos = produtos_existentes
+print(f"\n📋 PRODUTOS IDENTIFICADOS: {len(produtos)}")
 
-if len(produtos) == 0:
-    print("⚠️  ERRO: Nenhum produto encontrado. Verifique os nomes das colunas!")
-    print("🔍 Sugestão: Copie os nomes exatos das colunas mostrados acima")
-else:
-    print(f"\n📋 CONTINUANDO COM {len(produtos)} PRODUTOS")
+# As outras colunas são dados de controle/identificação:
+# - CPF: identificador do cliente  
+# - MES: período da análise
+# - CLAS_MODELO: classificação do cliente (High, Premium, Smart, Outros)
+# - relacionamento: score de relacionamento (0-1)
+# - shr_*: participação de cada produto no relacionamento
 
 # Tratar dados de produtos (blank = 0, preenchido = 1)
 for produto in produtos:
