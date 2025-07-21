@@ -84,6 +84,19 @@ for produto in produtos:
 df['num_produtos'] = df[produtos].sum(axis=1)
 df['diversificacao'] = df['num_produtos'] / len(produtos)
 
+# DIAGNÓSTICO: Verificar onde estão os NaN
+print("🔍 DIAGNÓSTICO DE NaN:")
+print(f"   de_relacionamento NaN: {df['de_relacionamento'].isna().sum()}")
+print(f"   num_produtos NaN: {df['num_produtos'].isna().sum()}")
+print(f"   Produtos encontrados: {len(produtos)}")
+
+# Verificar se os produtos têm NaN
+for produto in produtos:
+    if produto in df.columns:
+        nan_count = df[produto].isna().sum()
+        if nan_count > 0:
+            print(f"   {produto} NaN: {nan_count}")
+
 print("✅ DADOS TRATADOS")
 
 # ====================================================================
@@ -157,11 +170,28 @@ print("ATIVIDADE 2 - SEGMENTAÇÃO")
 print("="*50)
 
 # Segmentação RFV simples
-df['R_score'] = pd.qcut(df['de relacionamento'], q=5, labels=[1,2,3,4,5])
-df['F_score'] = pd.qcut(df['num_produtos'], q=5, labels=[1,2,3,4,5], duplicates='drop')
+df['R_score'] = pd.cut(df['de_relacionamento'], bins=[0, 0.2, 0.4, 0.6, 0.8, 1.0], labels=[1,2,3,4,5])
+df['F_score'] = pd.cut(df['num_produtos'], bins=[0, 0.2, 0.4, 0.6, 0.8, 1.0], labels=[1,2,3,4,5], duplicates='drop')
 
-# Score RFV combinado
-df['RFV_score'] = df['R_score'].astype(int) + df['F_score'].astype(int)
+# Score RFV combinado - com tratamento de NaN
+print("🔧 Calculando RFV score...")
+
+# Verificar se há NaN nos scores
+print(f"   R_score NaN: {df['R_score'].isna().sum()}")
+print(f"   F_score NaN: {df['F_score'].isna().sum()}")
+
+# Garantir que não há NaN antes de somar
+df['R_score'] = df['R_score'].fillna(1)  # NaN vira score mínimo
+df['F_score'] = df['F_score'].fillna(1)  # NaN vira score mínimo
+
+# Converter para int
+df['R_score'] = df['R_score'].astype(int)
+df['F_score'] = df['F_score'].astype(int)
+
+# Agora somar os scores
+df['RFV_score'] = df['R_score'] + df['F_score']
+
+print(f"   RFV score criado: min={df['RFV_score'].min()}, max={df['RFV_score'].max()}")
 
 # Criar segmentos (ajustando os thresholds para 4 scores F)
 def classificar_segmento(score):
